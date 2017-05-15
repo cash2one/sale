@@ -3,7 +3,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django import forms
 from django.forms import widgets
 from manager import models
-import json,chardet,sys
+import json
 
 # Create your views here.
 
