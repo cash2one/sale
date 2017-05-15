@@ -1,0 +1,94 @@
+{% extends 'module.html' %}
+{% block title %}
+    业绩管理
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="/static/assets/css/product.css">
+{% endblock %}
+
+{% block content %}
+    <div class=" admin-content">
+        <div class="daohang">
+            <ul>
+                <li style="color: white;line-height: 35px">业绩管理</li>
+            </ul>
+        </div>
+        <div class="admin">
+            <div class="p_content">
+                <div class="datablock">
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th>客户名称</th>
+                                <th>出单员工</th>
+                                <th>产品</th>
+                                <th>产品售价</th>
+                                <th>成交价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for line in data %}
+                            <tr>
+                                <td>{{ line }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mode"></div>
+    <div class="add_product">
+        <div class="page-header">
+            <h2>报单</h2>
+        </div>
+        <form class="form-horizontal" method="POST" action="/deal/">
+            <div class="form-group">
+                <label for="customer" class="col-sm-2 control-label">客户姓名</label>
+                <div class="col-sm-10">
+{#                    <input class="form-control" id="name" placeholder="商品名称">#}
+                    {{ obj.customer }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="cost" class="col-sm-2 control-label">出单员工</label>
+                <div class="col-sm-10">
+{#                    <input class="form-control" id="cost" placeholder="进价">#}
+                    {{ obj.cost }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="price" class="col-sm-2 control-label">售价</label>
+                <div class="col-sm-10">
+{#                    <input class="form-control" id="price" placeholder="售价">#}
+                    {{ obj.price }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="number" class="col-sm-2 control-label">进货量</label>
+                <div class="col-sm-10">
+{#                    <input class="form-control" id="number" placeholder="进货量">#}
+                    {{ obj.number }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" class="btn btn-success" id="add">添加</button>
+                    <button type="button" class="btn btn-default" id="cancel">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block footerjs %}
+    <script type="application/javascript">
+
+    </script>
+{% endblock %}

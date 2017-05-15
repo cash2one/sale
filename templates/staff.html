@@ -1,0 +1,142 @@
+{% extends "module.html" %}
+{% block title %}
+    员工管理
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/assets/css/product.css">
+{% endblock %}
+
+{% block content %}
+        <div class=" admin-content">
+        <div class="daohang">
+            <ul>
+                <li style="color: white;line-height: 35px">员工管理</li>
+            </ul>
+        </div>
+        <div class="admin">
+            <div class="p_content">
+                <div class="datablock">
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th>工号</th>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>年龄</th>
+                                <th>电话</th>
+                                <th>部门</th>
+                                <th>职位</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for line in data %}
+                            <tr>
+                                <td class="sid">{{ line.sid }}</td>
+                                <td>{{ line.sname }}</td>
+                                <td>{{ line.sex }}</td>
+                                <td>{{ line.age }}</td>
+                                <td>{{ line.stelphone }}</td>
+                                <td>{{ line.department }}</td>
+                                <td>{{ line.role }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger" name="delete" onclick="del_staff(this)">删除</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary btn-lg" id="add_product">员工入职</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mode"></div>
+    <div class="add_product">
+        <div class="page-header">
+            职工入职
+        </div>
+        <form class="form-horizontal" method="POST" action="/staff/">
+            <div class="form-group">
+                <label for="sname" class="col-sm-2 control-label">姓名</label>
+                <div class="col-sm-10">
+                    {{ obj.sname }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="spassword" class="col-sm-2 control-label">登录密码</label>
+                <div class="col-sm-10">
+                    {{ obj.spassword }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sex" class="col-sm-2 control-label">性别</label>
+                <div class="col-sm-10">
+                    {{ obj.sex }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="age" class="col-sm-2 control-label">年龄</label>
+                <div class="col-sm-10">
+                    {{ obj.age }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="stelphone" class="col-sm-2 control-label">电话</label>
+                <div class="col-sm-10">
+                    {{ obj.stelphone }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="department" class="col-sm-2 control-label">部门</label>
+                <div class="col-sm-10">
+                    {{ obj.department }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="role" class="col-sm-2 control-label">职位</label>
+                <div class="col-sm-10">
+                    {{ obj.role }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-success" id="add">添加</button>
+                    <button type="button" class="btn btn-default" id="cancel">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block footerjs %}
+    <script>
+        $('#add_product').click(function () {
+            $('.mode').css('display','block');
+            $('.add_product').css('display','block');
+        });
+        $('#cancel').click(function () {
+            $('.mode,.add_product').css('display','none');
+        });
+        function del_staff(obj) {
+            var sid = $(obj).parent().siblings('.sid').text();
+            $(obj).parent().siblings().parent().remove();
+            $.ajax({
+                url:"/delstaff/",
+                type:"POST",
+                data:{'sid':sid},
+                datatype:"text",
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    if (obj["status"] == "OK") {
+                        alert("删除成功!");
+                    }else {
+                        alert("删除失败!");
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}
