@@ -82,12 +82,19 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': 'sale',
+        # 'USER': 'root',
+        # 'PASSWORD': 'zhydb',
+        # 'HOST': '127.0.0.1',
+        # 'PORT': '3306',
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sale',
+        'NAME': 'myblog',
         'USER': 'root',
-        'PASSWORD': 'zhydb',
-        'HOST': '127.0.0.1',
+        'PASSWORD': '2Gkqx8EaqOqz4c',
+        'HOST': '10.130.53.126',
         'PORT': '3306',
+        'charset': 'utf8',
     }
 }
 
