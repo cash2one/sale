@@ -1,0 +1,78 @@
+{% extends 'module.html' %}
+
+{% block title %}
+    工资结算
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/assets/css/product.css">
+{% endblock %}
+{% if role == "sale" %}
+
+
+{% block content %}
+    <div class=" admin-content">
+        <div class="daohang">
+            <ul>
+                <li style="color: white;line-height: 35px">工资结算</li>
+            </ul>
+        </div>
+        <div class="admin">
+            <div class="p_content">
+                <div class="datablock">
+                    <form class="form-inline" method="post" action="/salary/">
+                        <div class="form-group">
+                            <label for="year">年</label>
+                            <select name="year" id="year" class="form-control">
+                                {% for line in year %}
+                                    {% if forloop.counter == 3 %}
+                                        <option value="{{ line }}" selected>{{ line }}</option>
+                                    {% else %}
+                                        <option value="{{ line }}">{{ line }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="month">月</label>
+                            <select name="month" id="month" class="form-control">
+                                {% for line in month %}
+                                    <option value="{{ line }}">{{ line }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-info" id="create">计算工资</button>
+                    </form>
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th>员工姓名</th>
+                                <th>部门</th>
+                                <th>职位</th>
+                                <th>基本工资</th>
+                                <th>提成</th>
+                                <th>结算月份</th>
+                                <th>实发工资</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for line in data %}
+                            <tr>
+                                <td>{{ line.staff__sname }}</td>
+                                <td>{{ line.staff__department }}</td>
+                                <td>{{ line.staff__role }}</td>
+                                <td>{{ line.staff__basic }}</td>
+                                <td>{{ line.commission }}</td>
+                                <td>{{ line.month }}</td>
+                                <td>{{ line.final }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% endif %}

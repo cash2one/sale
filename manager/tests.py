@@ -2,7 +2,7 @@
 from django.test import TestCase
 
 # Create your tests here.
+from django.utils import timezone
 
-msg = "中文"
-m = msg.encode()
-print(m)
+t = timezone.tzinfo
+print(t)

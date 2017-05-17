@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^delstaff/',views.delstaff),
     url(r'^login/',views.login),
     url(r'^logout/',views.logout),
+    url(r'^salary/',views.salary),
 ]

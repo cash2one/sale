@@ -3,7 +3,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django import forms
 from django.forms import widgets
 from manager import models
-import json
+import json,datetime,time
 
 # Create your views here.
 
@@ -57,6 +57,11 @@ class AddStaff(forms.Form):
         error_messages={"required":"职位不能为空"},
         widget=widgets.Select(attrs={"class":"form-control","id":"role"},choices=(("销售","销售"),("会计","会计"),("行政","行政")))
     )
+    basic = forms.IntegerField(
+        required=False,
+        initial=3000,
+        widget=widgets.TextInput(attrs={"class":"form-control","id":"basic","placeholder":"底薪"})
+    )
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -83,9 +88,32 @@ class Customer(forms.Form):
     )
 
 class Deal(forms.Form):
-    customer = forms.CharField(
-        error_messages={'required':'客户不能为空'},
-        widget=widgets.TextInput(attrs={"class":"form-control","id":"customer"})
+    get_cus = models.Customer.objects.all().values_list('cid','cname')
+    customer_tup = tuple(get_cus)
+    customer_id = forms.CharField(
+        error_messages={'required':'客户姓名不能为空'},
+        widget=widgets.Select(attrs={"class":"form-control","id":"customer"},choices=customer_tup)
+    )
+    get_sta = models.Staff.objects.exclude(role='admin').values_list('sid','sname')
+    staff_tup = tuple(get_sta)
+    staff_id = forms.CharField(
+        error_messages={'required':'出单员工不能为空'},
+        widget=widgets.Select(attrs={"class":"form-control","id":"staff"},choices=staff_tup)
+    )
+    get_pro = models.Product.objects.all().values_list('pid','pname')
+    select_tup = tuple(get_pro)
+    product_id = forms.Field(
+        widget=widgets.Select(attrs={"class":"form-control","id":"product"},choices=select_tup)
+    )
+    pay = forms.CharField(
+        error_messages={'required':'成交价不能为空'},
+        widget=widgets.TextInput(attrs={"class":"form-control","id":"price"})
+    )
+    number = forms.IntegerField(
+        error_messages={'required':'购买数量不能为空'},
+        min_value=1,
+        initial=1,
+        widget=widgets.TextInput(attrs={"class":"form-control","id":"number"})
     )
 
 def auth(func):
@@ -167,13 +195,40 @@ def deal(request):
     role = getrole(request)
     user = request.session['username']
     if request.method == "GET":
+        dealobj = Deal()
         if role == "admin":
-            data = models.Result.objects.all().values('customer__cname','staff__sname','product__pname','product__price','pay')
+            data = models.Result.objects.all().values('customer__cname','staff__sname','product__pname','product__price','pay','dealtime','number')
         elif role == "sale":
-            data = models.Result.objects.filter(staff__sname=user).values('customer__cname','staff__sname','product__pname','product__price','pay')
-        return render(request,'deal.html',{"role":role,"data":data,"user":user})
+            data = models.Result.objects.filter(staff__sname=user).values('customer__cname','staff__sname','product__pname','product__price','pay','dealtime','number')
+        return render(request,'deal.html',{"role":role,"data":data,"user":user,'obj':dealobj})
     elif request.method == "POST":
-        pass
+        dealobj = Deal(request.POST)
+        tag = dealobj.is_valid()
+        if tag:
+            res_dic = {}
+            stoktag = checkstock(request)
+            if stoktag[0]:
+                newstok = stoktag[1]['stok'] - stoktag[1]['number']
+                models.Product.objects.filter(pid=stoktag[1]['pid']).update(stok=newstok)
+                models.Result.objects.create(**dealobj.cleaned_data)
+                res_dic['status'] = "OK"
+            else:
+                res_dic['status'] = 'error'
+                res_dic['msg'] = '库存不足，该商品剩余%s件' %stoktag[1]['stok']
+            return HttpResponse(json.dumps(res_dic))
+        else:
+            return HttpResponse('error')
+
+@auth
+def checkstock(request):
+    pid = request.POST.get('product_id')
+    num = request.POST.get('number')
+    num = int(num)
+    stok = models.Product.objects.filter(pid=pid).values_list('stok')[0][0]
+    if  num > stok:
+        return (0,{"pid":pid,"stok":stok,"number":num})
+    else:
+        return (1,{"pid":pid,"stok":stok,"number":num})
 
 @auth
 def customer(request):
@@ -233,3 +288,84 @@ def delstaff(request):
         return HttpResponse(json.dumps(res))
     else:
         return redirect('/staff/')
+
+@auth
+def salary(request):
+    role = getrole(request)
+    user = request.session['username']
+    local = time.localtime()
+    local_year = local.tm_year
+    allstaff = models.Staff.objects.exclude(role='admin').values()
+    if request.method == "GET":
+        month = [x for x in range(1, 13)]
+        year = [y for y in range(local_year - 2, local_year + 3)]
+        data = models.Salary.objects.all().values('staff__sname','staff__department','staff__role','staff__basic','commission','month','final')
+        return render(request,'salary.html',{'role':role,'user':user,"year":year,"month":month,'data':data})
+    elif request.method == "POST":
+        year = request.POST.get('year',None)
+        month = request.POST.get('month',None)
+        month_str = "%s-%s" %(year,month)
+        createsalary(request,allstaff)
+        commission_list = calculatesalary(request,allstaff)
+        for line in commission_list:
+            sid = line['sid']
+            commission = line['commission']
+            for l in allstaff:
+                if l['sid'] == sid:
+                    basic = int(l['basic'])
+            final = basic + commission
+            data_dic = {}
+            data_dic['staff_id'],data_dic['commission'],data_dic['month'],data_dic['final'] = sid,commission,month_str,final
+            models.Salary.objects.filter(staff_id=sid,month=month_str).update(**data_dic)
+        return redirect("/salary/")
+
+@auth
+def createsalary(request,staff):
+    createyear = request.POST.get('year',None)
+    createmonth = request.POST.get('month',None)
+    if createyear and createmonth:
+        month = "%s-%s" %(createyear,createmonth)
+        for item in staff:
+            sid = item['sid']
+            salary_tag = models.Salary.objects.filter(staff_id=sid,month=month)
+            if not salary_tag:
+                models.Salary.objects.create(staff_id=sid,month=month)
+
+@auth
+def calculatesalary(request,staff):
+    if request.method == "POST":
+        year = request.POST.get('year', None)
+        month = request.POST.get('month', None)
+        year,month = int(year),int(month)
+        start = datetime.datetime(year, month, 1, 0, 0)
+        if month == 12:
+            year += 1
+            month = 1
+            end = datetime.datetime(year, month, 1, 0, 0)
+        else:
+            end = datetime.datetime(year, month+1, 1, 0, 0)
+        all_result = models.Result.objects.filter(dealtime__range=(start,end)).values('staff_id','product__cost','number','pay')
+        result = []
+        for item in all_result:
+            pay = item['pay']
+            pay = int(pay)
+            profit = pay*item['number'] - int(item['product__cost'])*int(item['number'])
+            commission = int(profit*0.15)
+            item['profit'] = profit
+            item['commission'] = commission
+            result.append(item)
+        r = []
+        for s in staff:
+            tmp = []
+            c = {}
+            for line in result:
+                if line['staff_id'] == s['sid']:
+                    commission = line['commission']
+                    tmp.append(commission)
+            sum_commission = 0
+            for i in tmp:
+                sum_commission += i
+            c['sid'] = s['sid']
+            c['commission'] = sum_commission
+            r.append(c)
+        return r

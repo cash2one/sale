@@ -23,7 +23,8 @@
 <body>
 <header class="am-topbar admin-header">
     <div class="am-topbar-brand">
-        <a href="/index/"><img src="/static/assets/i/logo.png"></a>
+{#        <a href="/index/"><img src="/static/assets/i/logo.png"></a>#}
+        <a href="/index/" style="text-decoration: none"><span style="font-size: 1.6em;font-weight: 600;">鸿润达润滑油销售管理系统</span></a>
     </div>
     <div class="am-collapse am-topbar-collapse" id="topbar-collapse">
         <ul class="am-nav am-nav-pills am-topbar-nav admin-header-list">
@@ -68,7 +69,6 @@
                 </ul>
                 <h3 class="am-icon-cart-plus"><em></em> <a href="#">业绩管理</a></h3>
                 <ul>
-                    <li><a href="/deal/">成交记录</a></li>
                     <li><a href="/deal/">业绩查询</a></li>
                 </ul>
                 <h3 class="am-icon-users"><em></em> <a href="#">客户管理</a></h3>
@@ -86,12 +86,11 @@
                     <ul>
                         <li><a href="/customer/">客户管理</a></li>
                         <li><a href="/deal/">报单</a></li>
-                        <li><a href="/deal/">业绩查询</a></li>
                     </ul>
                 {% elif role == "accounting" %}
                     <h3 class="am-icon-volume-up"><em></em> <a href="#">财务管理</a></h3>
                     <ul>
-                        <li><a href="/staff/">工资结算</a></li>
+                        <li><a href="/salary/">工资结算</a></li>
                     </ul>
             {% endif %}
         </div>

@@ -19,6 +19,7 @@ class Staff(models.Model):
     stelphone = models.CharField(null=False,max_length=32)
     department = models.CharField(default="销售部",max_length=32)
     role = models.CharField(default="salesman",null=False,max_length=32)
+    basic = models.IntegerField(null=False,default=3000)
 
 class Product(models.Model):
     pid = models.AutoField(primary_key=True)
@@ -33,3 +34,11 @@ class Result(models.Model):
     staff = models.ForeignKey(to=Staff,to_field='sid')
     product = models.ForeignKey(to=Product,to_field='pid')
     pay = models.CharField(max_length=64,null=False)
+    number = models.IntegerField(null=False,default=1)
+    dealtime = models.DateTimeField(auto_now_add=True)
+
+class Salary(models.Model):
+    staff = models.ForeignKey(to=Staff,to_field='sid')
+    commission = models.IntegerField(null=False,default=0)
+    month = models.CharField(max_length=32)
+    final = models.CharField(max_length=32,default=0)

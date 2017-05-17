@@ -4,6 +4,7 @@
 {% endblock %}
 
 {% block css %}
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/assets/css/product.css">
 {% endblock %}
 
@@ -17,28 +18,48 @@
         <div class="admin">
             <div class="p_content">
                 <div class="datablock">
+                {% if role == 'admin' %}
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="cname">客户姓名</label>
+                            <input type="text" class="form-control" id="cname" placeholder="客户姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="sname">出单员工</label>
+                            <input type="text" class="form-control" id="sname" placeholder="员工姓名">
+                        </div>
+                        <button type="button" class="btn btn-info" id="search">搜 索</button>
+                    </form>
+                {% endif %}
                     <table class="am-table">
                         <thead>
                             <tr>
                                 <th>客户名称</th>
                                 <th>出单员工</th>
                                 <th>产品</th>
-                                <th>产品售价</th>
-                                <th>成交价</th>
+                                <th>产品售价/件</th>
+                                <th>成交价/件</th>
+                                <th>数量（件）</th>
+                                <th>成交时间</th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for line in data %}
                             <tr>
-                                <td>{{ line }}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td>{{ line.customer__cname }}</td>
+                                <td>{{ line.staff__sname }}</td>
+                                <td>{{ line.product__pname }}</td>
+                                <td>{{ line.product__price }}</td>
+                                <td>{{ line.pay }}</td>
+                                <td>{{ line.number }}</td>
+                                <td>{{ line.dealtime|date:"Y-m-d H:i:s" }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                {% if role == "sale" %}
+                    <button type="button" class="btn btn-primary btn-lg" id="makedeal">报 单</button>
+                {% endif %}
                 </div>
             </div>
         </div>
@@ -48,38 +69,40 @@
         <div class="page-header">
             <h2>报单</h2>
         </div>
-        <form class="form-horizontal" method="POST" action="/deal/">
+        <form class="form-horizontal" method="POST" action="/deal/" name="newdeal">
             <div class="form-group">
                 <label for="customer" class="col-sm-2 control-label">客户姓名</label>
                 <div class="col-sm-10">
-{#                    <input class="form-control" id="name" placeholder="商品名称">#}
-                    {{ obj.customer }}
+                    {{ obj.customer_id }}
                 </div>
             </div>
             <div class="form-group">
-                <label for="cost" class="col-sm-2 control-label">出单员工</label>
+                <label for="staff" class="col-sm-2 control-label">出单员工</label>
                 <div class="col-sm-10">
-{#                    <input class="form-control" id="cost" placeholder="进价">#}
-                    {{ obj.cost }}
+                    {{ obj.staff_id }}
                 </div>
             </div>
             <div class="form-group">
-                <label for="price" class="col-sm-2 control-label">售价</label>
+                <label for="product" class="col-sm-2 control-label">商品</label>
                 <div class="col-sm-10">
-{#                    <input class="form-control" id="price" placeholder="售价">#}
-                    {{ obj.price }}
+                    {{ obj.product_id }}
                 </div>
             </div>
             <div class="form-group">
-                <label for="number" class="col-sm-2 control-label">进货量</label>
+                <label for="number" class="col-sm-2 control-label">数量</label>
                 <div class="col-sm-10">
-{#                    <input class="form-control" id="number" placeholder="进货量">#}
                     {{ obj.number }}
                 </div>
             </div>
             <div class="form-group">
+                <label for="price" class="col-sm-2 control-label">成交价</label>
+                <div class="col-sm-10">
+                    {{ obj.pay }}
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <button type="button" class="btn btn-success" id="add">添加</button>
+                    <button type="button" class="btn btn-success" id="add">报单</button>
                     <button type="button" class="btn btn-default" id="cancel">取消</button>
                 </div>
             </div>
@@ -88,7 +111,80 @@
 {% endblock %}
 
 {% block footerjs %}
+    <script type="application/javascript" src="/static/assets/js/jquery.form.js"></script>
     <script type="application/javascript">
-
+        $('#makedeal').click(function () {
+            $('.mode,.add_product').css('display','block');
+        });
+        $('#cancel').click(function () {
+            $('.mode,.add_product').css('display','none');
+        });
+        $('#add').click(function () {
+            var form = $('[name="newdeal"]');
+            var action = {
+                url: "/deal/",
+                type: "POST",
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    if (obj['status'] == 'OK'){
+                        alert("报单成功！");
+                        window.location.reload();
+                    }else {
+                        alert("报单失败："+obj['msg']);
+                        window.location.reload();
+                    }
+                }
+            };
+            form.ajaxSubmit(action);
+        });
+        $('#search').click(function () {
+            var cname = $('#cname').val();
+            var sname = $('#sname').val();
+            var all_record = $('.am-table tbody tr');
+            var record_sname = "";
+            var record_cname = "";
+            if (cname == "" && sname != ""){
+                for (i=0;i<all_record.length;i++){
+                    record_sname = $($(all_record[i]).children('td')[1]).text();
+                    if (record_sname != sname){
+                        $(all_record[i]).addClass('hide');
+                    }else{
+                        if ($(all_record[i]).hasClass('hide')){
+                            $(all_record[i]).removeClass('hide');
+                        }
+                    }
+                }
+            }else if(cname != "" && sname == ""){
+                for (i=0;i<all_record.length;i++){
+                    record_cname = $($(all_record[i]).children('td')[0]).text();
+                    if (record_cname != cname){
+                        $(all_record[i]).addClass('hide');
+                    }else{
+                        if ($(all_record[i]).hasClass('hide')){
+                            $(all_record[i]).removeClass('hide');
+                        }
+                    }
+                }
+            }else if(cname != "" && sname != ""){
+                for (i=0;i<all_record.length;i++){
+                    record_cname = $($(all_record[i]).children('td')[0]).text();
+                    record_sname = $($(all_record[i]).children('td')[1]).text();
+                    if (record_cname != cname || record_sname != sname){
+                        $(all_record[i]).addClass('hide');
+                    }else{
+                        if ($(all_record[i]).hasClass('hide')){
+                            $(all_record[i]).removeClass('hide');
+                        }
+                    }
+                }
+            }else {
+                alert("请输入搜索条件！");
+                for (i=0;i<all_record.length;i++){
+                    if ($(all_record[i]).hasClass('hide')){
+                        $(all_record[i]).removeClass('hide');
+                    }
+                }
+            }
+        })
     </script>
 {% endblock %}

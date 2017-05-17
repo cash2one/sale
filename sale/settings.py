@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = ')i*bim&9bq-h(fn3ojmbryu!#n$0bpseh%t9hl3(m44c)6+6(l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '*',
@@ -82,19 +82,19 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'sale',
-        # 'USER': 'root',
-        # 'PASSWORD': 'zhydb',
-        # 'HOST': '127.0.0.1',
-        # 'PORT': '3306',
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'myblog',
+        'NAME': 'sale',
         'USER': 'root',
-        'PASSWORD': '2Gkqx8EaqOqz4c',
-        'HOST': '10.130.53.126',
+        'PASSWORD': 'zhydb',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
-        'charset': 'utf8',
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': 'myblog',
+        # 'USER': 'root',
+        # 'PASSWORD': '2Gkqx8EaqOqz4c',
+        # 'HOST': '10.130.53.126',
+        # 'PORT': '3306',
+        # 'charset': 'utf8',
     }
 }
 

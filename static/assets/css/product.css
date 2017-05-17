@@ -30,13 +30,17 @@ h3 {
 .add_product {
     display: none;
     width: 900px;
-    height:500px;
+    height:550px;
     background: white;
     z-index: 1001;
     position: fixed;
     top: 50%;
     right: 50%;
-    margin-top: -250px;
+    margin-top: -275px;
     margin-right: -450px;
-    padding: 0 30px 0 30px;
+    padding: 0 60px 0 30px;
+}
+
+.hide {
+    display: none;
 }
