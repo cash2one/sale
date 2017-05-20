@@ -88,22 +88,21 @@ class Customer(forms.Form):
     )
 
 class Deal(forms.Form):
-    get_cus = models.Customer.objects.all().values_list('cid','cname')
-    customer_tup = tuple(get_cus)
-    customer_id = forms.CharField(
+    customer_id = forms.ChoiceField(
         error_messages={'required':'客户姓名不能为空'},
-        widget=widgets.Select(attrs={"class":"form-control","id":"customer"},choices=customer_tup)
+        widget=widgets.Select(attrs={"class":"form-control","id":"customer"}),
+        choices=models.Customer.objects.all().values_list('cid', 'cname'),
     )
-    get_sta = models.Staff.objects.exclude(role='admin').values_list('sid','sname')
-    staff_tup = tuple(get_sta)
-    staff_id = forms.CharField(
+
+    staff_id = forms.ChoiceField(
         error_messages={'required':'出单员工不能为空'},
-        widget=widgets.Select(attrs={"class":"form-control","id":"staff"},choices=staff_tup)
+        widget=widgets.Select(attrs={"class":"form-control","id":"staff"}),
+        choices=models.Staff.objects.exclude(role='admin').values_list('sid', 'sname'),
     )
-    get_pro = models.Product.objects.all().values_list('pid','pname')
-    select_tup = tuple(get_pro)
-    product_id = forms.Field(
-        widget=widgets.Select(attrs={"class":"form-control","id":"product"},choices=select_tup)
+
+    product_id = forms.ChoiceField(
+        widget=widgets.Select(attrs={"class":"form-control","id":"product"}),
+        choices=models.Product.objects.all().values_list('pid', 'pname'),
     )
     pay = forms.CharField(
         error_messages={'required':'成交价不能为空'},
@@ -115,6 +114,12 @@ class Deal(forms.Form):
         initial=1,
         widget=widgets.TextInput(attrs={"class":"form-control","id":"number"})
     )
+
+    def __init__(self,*args,**kwargs):
+        super(Deal,self).__init__(*args,**kwargs)
+        self.fields['customer_id'].choice = models.Customer.objects.all().values_list('cid', 'cname')
+        self.fields['staff_id'].choice = models.Staff.objects.exclude(role='admin').values_list('sid', 'sname')
+        self.fields['product_id'].choice = models.Product.objects.all().values_list('pid', 'pname')
 
 def auth(func):
     def inner(request,*args,**kwargs):
