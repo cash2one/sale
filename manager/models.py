@@ -9,6 +9,7 @@ class Customer(models.Model):
     ctelphone = models.CharField(null=False,max_length=32)
     car = models.CharField(max_length=64)
     create_time = models.DateTimeField(auto_now_add=True)
+    viptag = models.CharField(null=False,default="否",max_length=8)
 
 class Staff(models.Model):
     sid = models.AutoField(primary_key=True)

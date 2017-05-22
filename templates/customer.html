@@ -24,6 +24,7 @@
                                 <th>客户名称</th>
                                 <th>电话</th>
                                 <th>车型</th>
+                                <th>VIP客户</th>
                                 <th>录入时间</th>
                                 <th>操作</th>
                             </tr>
@@ -35,6 +36,7 @@
                                 <td>{{ line.cname }}</td>
                                 <td>{{ line.ctelphone }}</td>
                                 <td>{{ line.car }}</td>
+                                <td>{{ line.viptag }}</td>
                                 <td>{{ line.create_time|date:"Y-m-d H:i:s" }}</td>
                                 <td><button type="button" class="btn btn-success" id="edit">编辑</button></td>
                             </tr>

@@ -292,11 +292,19 @@
                 </div>
                 <script type="text/javascript">jQuery(".slideTxtBox").slide();</script>
             </div>
-            <div class="foods">
-                <ul>版权所有@2015 .模板收集自 <a href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - More
-                    Templates<a href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a></ul>
-                <dl><a href="" title="返回头部" class="am-icon-btn am-icon-arrow-up"></a></dl>
+            <div class="remind" style="display: none">
+                {{ remind }}
             </div>
+            <div class="foods"></div>
         </div>
     </div>
+{% endblock %}
+
+{% block footerjs %}
+    <script type="application/javascript">
+        window.onload=function () {
+            var allreminder = $('.remind').text();
+            alert("请提醒以下用户更换机油：\n"+allreminder);
+        }
+    </script>
 {% endblock %}

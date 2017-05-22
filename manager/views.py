@@ -167,7 +167,19 @@ def logout(request):
 def index(request):
     role = getrole(request)
     user = request.session['username']
-    response = render(request,'index.html',{"role":role,"user":user})
+    alldeal = models.Result.objects.filter(staff__sname=user).values('customer__cname','dealtime')
+    remind = []
+    for item in alldeal:
+        rt = item['dealtime']
+        rtime = time.mktime(rt.timetuple())
+        customer_name = item['customer__cname']
+        timenow = time.mktime(time.localtime())
+        difftime = timenow - rtime
+        if difftime >= 300:
+            remind.append(customer_name)
+    remind = list(set(remind))
+    remind = "、".join(remind)
+    response = render(request,'index.html',{"role":role,"user":user,"remind":remind})
     return response
 
 @auth
@@ -222,6 +234,12 @@ def deal(request):
             deal_data['customer_id'] = request.POST.get('customer_id',None)
             deal_data['staff_id'] = request.POST.get('staff_id',None)
             deal_data['product_id'] = request.POST.get('product_id',None)
+            dealnumber = dealobj.cleaned_data['number']
+            price = dealobj.cleaned_data['pay']
+            price = int(price)
+            allprice = price*dealnumber
+            if allprice >= 500:
+                models.Customer.objects.filter(cid=customer_id).update(viptag='是')
             res_dic = {}
             stoktag = checkstock(request)
             if stoktag[0]:
@@ -252,8 +270,14 @@ def customer(request):
     role = getrole(request)
     user = request.session['username']
     if request.method == "GET":
+        crole = request.GET.get('crole',None)
         cusobj = Customer()
-        data = models.Customer.objects.all().values()
+        if crole == "normal":
+            data = models.Customer.objects.filter(viptag="否").values()
+        elif crole == "vip":
+            data = models.Customer.objects.filter(viptag="是").values()
+        else:
+            data = models.Customer.objects.all().values()
         return render(request,'customer.html',{"role":role,"data":data,"user":user,'obj':cusobj})
     elif request.method == "POST":
         res_data = {}
