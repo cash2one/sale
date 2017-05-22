@@ -301,10 +301,12 @@
 {% endblock %}
 
 {% block footerjs %}
-    <script type="application/javascript">
-        window.onload=function () {
-            var allreminder = $('.remind').text();
-            alert("请提醒以下用户更换机油：\n"+allreminder);
-        }
-    </script>
+    {% if role == "sale" %}
+        <script type="application/javascript">
+            window.onload=function () {
+                var allreminder = $('.remind').text();
+                alert("请提醒以下用户更换机油：\n"+allreminder);
+            }
+        </script>
+    {% endif %}
 {% endblock %}
